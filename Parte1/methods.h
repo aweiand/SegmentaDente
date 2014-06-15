@@ -55,15 +55,7 @@ int MediaDosVizinhos(int x, int y)
     int soma = 0;
     for(int i =-KERNEL_SIZE; i<=KERNEL_SIZE;i++){
         for(int j =-KERNEL_SIZE; j<=KERNEL_SIZE;j++){
-            if (limiar){
-                if (Image->GetPointIntensity(x+i,y+j) < 100 && Image->GetPointIntensity(x+i,y+j) > 40){
-                    soma = soma + 255;
-                } else {
-                    soma = soma - 255;
-                }
-            } else {
-                soma = soma + Image->GetPointIntensity(x+i,y+j);
-            }
+            soma = soma + Image->GetPointIntensity(x+i,y+j);
         }
     }
 
@@ -229,10 +221,10 @@ void ExpandePinos(){
             } else {
                 Image3->DrawPixel(x, y,r,g,b);
             }
-
         }
     }
     Image3->CopyTo(Image);
+    Image3->CopyTo(NovaImagem);
     cout << "Concluiu Expande Pinos.\n";
 }
 
@@ -292,6 +284,7 @@ void verDentina(int tam = 3){
 
 
 void LimpaFundo(){
+    unsigned char r,g,b;
     int x,y;
     int i;
     cout << "Iniciou LimpaFundo....";
@@ -300,8 +293,83 @@ void LimpaFundo(){
     {
         for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
         {
+            NovaImagem->ReadPixel(x,y,r,g,b);
+            i = Image->GetPointIntensity(x,y);
 
+            int m = MediaDosVizinhos(x,y);
+
+            if (m > 10 && m < 45 && b != 255){
+                Image3->DrawPixel(x, y,0,0,0);
+            } else {
+                Image3->DrawPixel(x, y, r, g, b);
+            }
         }
     }
+
+    Image3->CopyTo(NovaImagem);
     cout << "Concluiu LimpaFundo.\n";
 }
+
+void AchaDentina(){
+    unsigned char r,g,b;
+    int x,y;
+    int i;
+    cout << "Iniciou AchaDentina....";
+
+    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
+    {
+        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
+        {
+            NovaImagem->ReadPixel(x,y,r,g,b);
+            i = Image->GetPointIntensity(x,y);
+
+            int m = MediaDosVizinhos(x,y);
+
+            if (m > 10 && b != 255){
+                Image3->DrawPixel(x, y,0,255,0);
+            } else {
+                Image3->DrawPixel(x, y, r, g, b);
+            }
+        }
+    }
+
+    Image3->CopyTo(NovaImagem);
+    cout << "Concluiu AchaDentina.\n";
+}
+
+int Magnitude(int x, int y, int masc){
+    int soma = 0;
+    for(int i =-KERNEL_SIZE; i<=KERNEL_SIZE;i++){
+        for(int j =-KERNEL_SIZE; j<=KERNEL_SIZE;j++){
+            soma = soma + (Image->GetPointIntensity(x+i,y+j) * masc);
+        }
+    }
+
+    return soma;
+}
+
+void limpaErrosDentina(){
+    unsigned char r,g,b;
+    int x,y;
+    int i;
+    cout << "Iniciou limpaErrosDentina....";
+
+    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
+    {
+        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
+        {
+            Image3->ReadPixel(x,y,r,g,b);
+            i = Image3->GetPointIntensity(x,y);
+
+            if (Magnitude(x,y,-2) < -6776){
+                Image3->DrawPixel(x,y, 0,0,0);
+            } else {
+                Image3->DrawPixel(x,y, r,g,b);
+            }
+        }
+    }
+
+    Image3->CopyTo(NovaImagem);
+    cout << "Concluiu limpaErrosDentina.\n";
+}
+

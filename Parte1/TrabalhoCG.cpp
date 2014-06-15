@@ -26,7 +26,6 @@ ImageClass *Image, *NovaImagem, *Image3;
 #define ALTURA_JAN 600
 #define KERNEL_SIZE 5
 
-bool limiar = false;
 int histo[255];
 int media = 0;
 int **pinos;
@@ -63,14 +62,10 @@ void init(void)
     AchaPinos();
     ColorePinos();
     ExpandePinos();
-
-
-//    NovaImagem->CopyTo(Image);
-//    linearHisto();
-//    PassaBaixa();
-//    NovaImagem->Save("teste.bmp");
-//    verDentina(3);
-//    linearHisto();
+    LimpaFundo();
+    ExpandePinos();
+    ExpandePinos();
+    AchaDentina();
 }
 
 // **********************************************************************
@@ -146,6 +141,9 @@ void keyboard ( unsigned char key, int x, int y )
     case 'z':
         LimpaFundo();
         break;
+    case 'j':
+        AchaDentina();
+        break;
     case 'q':
         ExpandePinos();
         break;
@@ -167,11 +165,11 @@ void keyboard ( unsigned char key, int x, int y )
         break;
     case 'c':
         NovaImagem->CopyTo(Image);
-        cout << "NovaImagem copiara para Image" << endl;
+        cout << "NovaImagem copiada para Image" << endl;
         break;
-    case 'a':
-        limiar = true;
-        cout << "Limiar = true" << endl;
+    case 'd':
+        Image3->CopyTo(NovaImagem);
+        cout << "NovaImagem copiada para Image" << endl;
         break;
     case 'e':
         AchaPinos();
@@ -181,6 +179,9 @@ void keyboard ( unsigned char key, int x, int y )
         break;
     case 't':
         verDentina();
+        break;
+    case 'l':
+        limpaErrosDentina();
         break;
     default:
         break;
