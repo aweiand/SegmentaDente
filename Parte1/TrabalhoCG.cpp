@@ -1,6 +1,12 @@
 // **********************************************************************
 // PUCRS/FACIN
 // COMPUTAÇÃO GRÁFICA
+//
+//	TrabalhoCG.cpp
+//  Programa de segmentação de Imagens de Micro Tomografia
+//  de dentes com algoritmos de segmentação por linear.
+//
+//	Augusto Weiand <guto.weiand@gmail.com>
 // **********************************************************************
 
 #include <iostream>
@@ -19,6 +25,8 @@ using namespace std;
 #include "SOIL/SOIL.h"
 #include "ImageClass.h"
 
+// **********************************************************************
+// Variáveis das imagens e outras globais utilizadas no sistema
 ImageClass *Image, *NovaImagem, *Image3;
 
 #define LIMIAR 100
@@ -29,13 +37,41 @@ ImageClass *Image, *NovaImagem, *Image3;
 int histo[255];
 int media = 0;
 int **pinos;
-
-#include "methods.h"
+int kernel_2 = 3;
+// **********************************************************************
 
 // **********************************************************************
-//  void init(void)
-//  Inicializa os parâmetros globais de OpenGL
-//
+// Biblioteca de métodos para a segmentação
+#include "methods.h"
+// **********************************************************************
+
+// **********************************************************************
+//      Mostra na tela o menu de opções
+// **********************************************************************
+void printaMenu(){
+    cout << " - - - - - " << endl;
+    cout << "Menu:" << endl;
+    cout << "'y' - Aplica Mediana" << endl;
+    cout << "'z' - Limpa Fundo" << endl;
+    cout << "'j' - Acha Dentina" << endl;
+    cout << "'q' - Expandir Pinos" << endl;
+    cout << "'c' - Copia NovaImagem para Image" << endl;
+    cout << "'d' - Copia Image3 para NovaImage" << endl;
+    cout << "'e' - Acha Pinos" << endl;
+    cout << "'p' - Colore Pinos" << endl;
+    cout << "'t' - Ver Dentina" << endl;
+    cout << "'l' - Limpa Erros Dentina" << endl;
+    cout << "'2' - ConvertBlackAndWhite" << endl;
+    cout << "'3' - Passa Baixa" << endl;
+    cout << "'9' - Salva NovaImagem" << endl << endl;
+    cout << "'m' - Reimprime Menu" << endl;
+    cout << "Seta para Cima aumenta Kernel_2" << endl;
+    cout << "Seta para Baixo diminui Kernel_2" << endl;
+    cout << " - - - - - " << endl;
+}
+
+// **********************************************************************
+//      Inicializa o sistema e o OpenGL
 // **********************************************************************
 void init(void)
 {
@@ -44,8 +80,8 @@ void init(void)
 
     glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Fundo de tela preto
 
-    r = Image->Load("775.png");
-    //r = Image->Load("647.png");
+    //r = Image->Load("775.png");
+    r = Image->Load("1014.png");
 
     if (!r)
         exit(1);
@@ -58,20 +94,20 @@ void init(void)
     NovaImagem  = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
     Image3      = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
 
-    Interval();
-    AchaPinos();
+    Interval(Image, NovaImagem);
+    AchaPinos(Image, Image3);
     ColorePinos();
-    ExpandePinos();
+    ExpandePinos(Image, NovaImagem);
     LimpaFundo();
-    ExpandePinos();
-    ExpandePinos();
+    ExpandePinos(Image, NovaImagem);
+    ExpandePinos(Image, NovaImagem);
     AchaDentina();
+
+    printaMenu();
 }
 
 // **********************************************************************
-//  void reshape( int w, int h )
-//  trata o redimensionamento da janela OpenGL
-//
+//      Trata o redimensionamento da janela OpenGL
 // **********************************************************************
 void reshape( int w, int h )
 {
@@ -89,10 +125,9 @@ void reshape( int w, int h )
 
 
 }
+
 // **********************************************************************
-//  void display( void )
-//
-//
+//      Display
 // **********************************************************************
 void display( void )
 {
@@ -129,9 +164,7 @@ void display( void )
 
 
 // **********************************************************************
-//  void keyboard ( unsigned char key, int x, int y )
-//
-//
+//      Trata os eventos do teclado
 // **********************************************************************
 void keyboard ( unsigned char key, int x, int y )
 {
@@ -145,7 +178,7 @@ void keyboard ( unsigned char key, int x, int y )
         AchaDentina();
         break;
     case 'q':
-        ExpandePinos();
+        ExpandePinos(Image, NovaImagem);
         break;
     case 27: // Termina o programa qdo
         NovaImagem->Delete();
@@ -158,10 +191,10 @@ void keyboard ( unsigned char key, int x, int y )
         cout << "Imagem Salva generate.png" << endl;
         break;
     case '2':
-        ConvertBlackAndWhite();
+        ConvertBlackAndWhite(Image, NovaImagem);
         break;
     case '3':
-        PassaBaixa();
+        PassaBaixa(Image, NovaImagem);
         break;
     case 'c':
         NovaImagem->CopyTo(Image);
@@ -172,7 +205,7 @@ void keyboard ( unsigned char key, int x, int y )
         cout << "NovaImagem copiada para Image" << endl;
         break;
     case 'e':
-        AchaPinos();
+        AchaPinos(Image, Image3);
         break;
     case 'p':
         ColorePinos();
@@ -183,6 +216,12 @@ void keyboard ( unsigned char key, int x, int y )
     case 'l':
         limpaErrosDentina();
         break;
+    case 'y':
+        AplicaMediana(Image, NovaImagem);
+        break;
+    case 'm':
+        printaMenu();
+        break;
     default:
         break;
     }
@@ -190,18 +229,19 @@ void keyboard ( unsigned char key, int x, int y )
 }
 
 // **********************************************************************
-//  void arrow_keys ( int a_keys, int x, int y )
-//
-//
+//      Trata teclas especiais
 // **********************************************************************
 void arrow_keys ( int a_keys, int x, int y )
 {
     switch ( a_keys )
     {
     case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
+        kernel_2 += 2;
+        cout << "Kernel_2: " << kernel_2 << endl;
         break;
     case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
-
+        kernel_2 -= 2;
+        cout << "Kernel_2: " << kernel_2 << endl;
         break;
     default:
         break;
@@ -209,9 +249,7 @@ void arrow_keys ( int a_keys, int x, int y )
 }
 
 // **********************************************************************
-//  void main ( int argc, char** argv )
-//
-//
+//      Função principal do sistema
 // **********************************************************************
 int main ( int argc, char** argv )
 {
@@ -237,5 +275,3 @@ int main ( int argc, char** argv )
 
     return 0;
 }
-
-

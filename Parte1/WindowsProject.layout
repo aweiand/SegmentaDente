@@ -1,44 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Debug" />
-	<File name="SOIL\stb_image_aug.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="methods.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="60826" topLine="1807" />
+			<Cursor1 position="7967" topLine="216" />
 		</Cursor>
 	</File>
-	<File name="methods.h" open="1" top="1" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="TrabalhoCG.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="8896" topLine="151" />
+			<Cursor1 position="5639" topLine="140" />
 		</Cursor>
 		<Folding>
-			<Collapse line="0" />
-			<Collapse line="30" />
-			<Collapse line="129" />
-			<Collapse line="165" />
-			<Collapse line="173" />
-			<Collapse line="197" />
-			<Collapse line="230" />
-			<Collapse line="249" />
-		</Folding>
-	</File>
-	<File name="TrabalhoCG.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4601" topLine="134" />
-		</Cursor>
-		<Folding>
-			<Collapse line="97" />
-			<Collapse line="197" />
-			<Collapse line="216" />
+			<Collapse line="132" />
 		</Folding>
 	</File>
 	<File name="ImageClass.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2891" topLine="109" />
+			<Cursor1 position="5674" topLine="211" />
 		</Cursor>
 	</File>
 	<File name="SOIL\SOIL.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="43414" topLine="1449" />
+		</Cursor>
+	</File>
+	<File name="SOIL\stb_image_aug.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="60826" topLine="1807" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

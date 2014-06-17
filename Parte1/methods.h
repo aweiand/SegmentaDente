@@ -1,3 +1,6 @@
+// **********************************************************************
+//      Função que monta um array com o histograma da imagem
+// **********************************************************************
 void getHistograma(){
     int x,y;
     int i;
@@ -24,10 +27,13 @@ void getHistograma(){
     }
 
     media = histo[(pontob - pontoa)];
-    cout << media;
-    cout << " - Calculo do histograma Finalizado.\n";
+    cout << "Calculo do histograma Finalizado.\n";
 }
 
+// **********************************************************************
+//      Função que Lineariza o histograma da Imagem
+//      deixando o linear no máximo a 55
+// **********************************************************************
 void linearHisto(){
 	unsigned char r,g,b;
     int x,y;
@@ -50,12 +56,64 @@ void linearHisto(){
     cout << "Concluiu Linear Histo.\n";
 }
 
-int MediaDosVizinhos(int x, int y)
-{
+// **********************************************************************
+//      Função de comparação para ordenar um array
+// **********************************************************************
+int cmpfunc(const void * a, const void * b){
+   return ( *(int*)a - *(int*)b );
+}
+
+// **********************************************************************
+//      Função de cálculo de Mediana
+// **********************************************************************
+int Mediana(int x, int y, int kernel, ImageClass *img){
+    int soma = 0, i = 0;
+    int ker = (kernel-1)/2;
+    int arr[(kernel*kernel)];
+
+    for(int i =-ker; i<=ker;i++){
+        for(int j =-ker; j<=ker;j++){
+            if (x+i > 0 && y+i > 0 && x+i < img->SizeX() && y+i < img->SizeY()){
+                arr[i] = img->GetPointIntensity(x+i,y+j);
+                i++;
+            }
+        }
+    }
+
+    qsort(arr, kernel*kernel, sizeof(int), cmpfunc);
+
+    return arr[(ker+1)];
+}
+
+// **********************************************************************
+//      Função que aplica a Mediana
+// **********************************************************************
+void AplicaMediana(ImageClass *from, ImageClass *to){
+	unsigned char r,g,b;
+    int x,y;
+    int i;
+    cout << "Iniciou Aplica Mediana....";
+
+    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
+    {
+        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
+        {
+            int m = Mediana(x,y, kernel_2, from);
+            to->DrawPixel(x, y,m,m,m);
+        }
+    }
+    cout << "Concluiu Aplica Mediana.\n";
+}
+
+// **********************************************************************
+//      Função que calcula a média dos vizinhos dos pontos
+//      de acordo com o KERNEL_SIZE
+// **********************************************************************
+int MediaDosVizinhos(int x, int y, ImageClass *img){
     int soma = 0;
     for(int i =-KERNEL_SIZE; i<=KERNEL_SIZE;i++){
         for(int j =-KERNEL_SIZE; j<=KERNEL_SIZE;j++){
-            soma = soma + Image->GetPointIntensity(x+i,y+j);
+            soma = soma + img->GetPointIntensity(x+i,y+j);
         }
     }
 
@@ -64,147 +122,106 @@ int MediaDosVizinhos(int x, int y)
 }
 
 // **********************************************************************
-//  void PassaBaixa()
-//
-//
+//      Função que aplica o filtro de passa baixa
 // **********************************************************************
-void PassaBaixa()
-{
-    // Tarefa 1:
-    //  Mude o valor do LIMIAR para números pequenos como 5 ou 10
-
-	unsigned char r,g,b;
+void PassaBaixa(ImageClass *from, ImageClass *to){
     int x,y;
-    int i;
     cout << "Iniciou Passa Baixa....";
-    //NovaImagem->DrawPixel(20, 1,100,255,0,0 );
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
-    {
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
-        {
-            i = Image->GetPointIntensity(x,y);
-			Image->ReadPixel(x,y,r,g,b);
-
-            // printf("Intens Fora: %5d\n",i);
-            int m = MediaDosVizinhos(x,y);
-            NovaImagem->DrawPixel(x, y,m,m,m);
-
+    for(x=KERNEL_SIZE;x<from->SizeX()-KERNEL_SIZE;x++){
+        for(y=KERNEL_SIZE;y<from->SizeY()-KERNEL_SIZE;y++){
+            int m = MediaDosVizinhos(x,y, from);
+            to->DrawPixel(x, y, m,m,m);
         }
     }
     cout << "Concluiu Passa Baixa.\n";
-
 }
 
-void Interval()
+// **********************************************************************
+//      Função que limiariza o histograma da imagem de acordo
+//      de acordo com os intervalor especificados
+// **********************************************************************
+void Interval(ImageClass *from, ImageClass *to)
 {
     int x,y;
     int i;
     cout << "Iniciou Interval....";
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
-    {
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
-        {
-            i = Image->GetPointIntensity(x,y);
+    for(x=KERNEL_SIZE;x<from->SizeX()-KERNEL_SIZE;x++){
+        for(y=KERNEL_SIZE;y<from->SizeY()-KERNEL_SIZE;y++){
+            i = from->GetPointIntensity(x,y);
 
             if (i < 50)
-                NovaImagem->DrawPixel(x, y, 25, 25, 25);
+                to->DrawPixel(x, y, 25, 25, 25);
             else if (i >= 50 && i < 100)
-                NovaImagem->DrawPixel(x, y, 75, 75, 75);
+                to->DrawPixel(x, y, 75, 75, 75);
             else if (i >= 100 && i < 200)
-                NovaImagem->DrawPixel(x, y, 125, 125, 125);
+                to->DrawPixel(x, y, 125, 125, 125);
             else if (i >= 200 && i <= 255)
-                NovaImagem->DrawPixel(x, y, 200, 200, 200);
+                to->DrawPixel(x, y, 200, 200, 200);
         }
     }
     cout << "Concluiu Interval.\n";
 
 }
-// **********************************************************************
-//  void ConvertBlackAndWhite()
-//
-//
-// **********************************************************************
-void ConvertBlackAndWhite()
-{
-    // Tarefa 1:
-    //  Mude o valor do LIMIAR para números pequenos como 5 ou 10
 
-	unsigned char r,g,b;
-    int x,y;
-    int i;
+// **********************************************************************
+//      Função que converte a imagem em preto e branco
+// **********************************************************************
+void ConvertBlackAndWhite(ImageClass *from, ImageClass *to){
+    int x,y,i;
     cout << "Iniciou Black & White....";
-    //NovaImagem->DrawPixel(20, 1,100,255,0,0 );
 
-    for(x=0;x<Image->SizeX();x++)
-    {
-        for(y=0;y<Image->SizeY();y++)
-        {
-            i = Image->GetPointIntensity(x,y);
-			Image->ReadPixel(x,y,r,g,b);
+    for(x=0;x<from->SizeX();x++){
+        for(y=0;y<from->SizeY();y++){
+            i = from->GetPointIntensity(x,y);
 
-            // printf("Intens Fora: %5d\n",i);
            if (i > 0 && i < 100)
-            {
-                NovaImagem->DrawPixel(x, y, 255,0,0);
-            }
-			else NovaImagem->DrawPixel(x, y, 0,0,0);
+                to->DrawPixel(x, y, 255,0,0);
+			else
+                to->DrawPixel(x, y, 0,0,0);
         }
     }
     cout << "Concluiu Black & White.\n";
-
 }
 
-
 // **********************************************************************
-// void DetectImageBorders()
-//
-//
+//      Função que encontra os pinos de acordo com a média
+//      dos vizinhos dos pontos
 // **********************************************************************
-void DetectImageBorders()
-{
-
-    // varredura vertical
-
-    // varredura horizontal
-
-}
-
-void AchaPinos(){
+void AchaPinos(ImageClass *from, ImageClass *to){
     int x,y;
     int i;
     cout << "Iniciou AchaPinos....";
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
-    {
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
-        {
-            i = Image->GetPointIntensity(x,y);
+    for(x=KERNEL_SIZE;x<from->SizeX()-KERNEL_SIZE;x++){
+        for(y=KERNEL_SIZE;y<from->SizeY()-KERNEL_SIZE;y++){
+            i = from->GetPointIntensity(x,y);
 
-            int m = MediaDosVizinhos(x,y);
+            int m = MediaDosVizinhos(x,y, from);
 
-            if (m > 100){
-                Image3->DrawPixel(x, y,0,0,0);
-            } else {
-                Image3->DrawPixel(x, y, 255, 255, 255);
-            }
-
+            if (m > 100)
+                to->DrawPixel(x, y,0,0,0);
+            else
+                to->DrawPixel(x, y, 255, 255, 255);
         }
     }
     cout << "Concluiu AchaPinos.\n";
 }
 
-void ExpandePinos(){
+// **********************************************************************
+//      Função que aplica a expansão nos pinos com máscara
+//                                                  OXO
+//                                                  OOO
+// **********************************************************************
+void ExpandePinos(ImageClass *from, ImageClass *to){
     unsigned char r,g,b;
     int x,y;
     int i;
     cout << "Iniciou Expande Pinos....";
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
-    {
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
-        {
+    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++){
+        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++){
             NovaImagem->ReadPixel(x,y,r,g,b);
 
             if (b == 255){
@@ -228,6 +245,9 @@ void ExpandePinos(){
     cout << "Concluiu Expande Pinos.\n";
 }
 
+// **********************************************************************
+//      Função que pinta os pinos de azul
+// **********************************************************************
 void ColorePinos(){
     int x,y;
     int i;
@@ -247,6 +267,9 @@ void ColorePinos(){
     cout << "Concluiu ColorePinos.\n";
 }
 
+// **********************************************************************
+//      Função que pinta a dentina de verde
+// **********************************************************************
 void verDentina(int tam = 3){
     unsigned char r,g,b;
     int x,y;
@@ -282,7 +305,9 @@ void verDentina(int tam = 3){
     cout << "Concluiu VerDentina.\n";
 }
 
-
+// **********************************************************************
+//      Função que remove os pontos "perdidos" do fundo
+// **********************************************************************
 void LimpaFundo(){
     unsigned char r,g,b;
     int x,y;
@@ -296,7 +321,7 @@ void LimpaFundo(){
             NovaImagem->ReadPixel(x,y,r,g,b);
             i = Image->GetPointIntensity(x,y);
 
-            int m = MediaDosVizinhos(x,y);
+            int m = MediaDosVizinhos(x,y, NovaImagem);
 
             if (m > 10 && m < 45 && b != 255){
                 Image3->DrawPixel(x, y,0,0,0);
@@ -310,6 +335,9 @@ void LimpaFundo(){
     cout << "Concluiu LimpaFundo.\n";
 }
 
+// **********************************************************************
+//      Função para encontrar a dentina
+// **********************************************************************
 void AchaDentina(){
     unsigned char r,g,b;
     int x,y;
@@ -323,7 +351,7 @@ void AchaDentina(){
             NovaImagem->ReadPixel(x,y,r,g,b);
             i = Image->GetPointIntensity(x,y);
 
-            int m = MediaDosVizinhos(x,y);
+            int m = MediaDosVizinhos(x,y, NovaImagem);
 
             if (m > 10 && b != 255){
                 Image3->DrawPixel(x, y,0,255,0);
@@ -337,17 +365,23 @@ void AchaDentina(){
     cout << "Concluiu AchaDentina.\n";
 }
 
-int Magnitude(int x, int y, int masc){
+// **********************************************************************
+//      Função que calcula a magnitude da imagem
+// **********************************************************************
+int Magnitude(int x, int y, int masc, ImageClass *img){
     int soma = 0;
     for(int i =-KERNEL_SIZE; i<=KERNEL_SIZE;i++){
         for(int j =-KERNEL_SIZE; j<=KERNEL_SIZE;j++){
-            soma = soma + (Image->GetPointIntensity(x+i,y+j) * masc);
+            soma = soma + (img->GetPointIntensity(x+i,y+j) * masc);
         }
     }
 
     return soma;
 }
 
+// **********************************************************************
+//      Função que limpa os erros da dentina
+// **********************************************************************
 void limpaErrosDentina(){
     unsigned char r,g,b;
     int x,y;
@@ -361,7 +395,7 @@ void limpaErrosDentina(){
             Image3->ReadPixel(x,y,r,g,b);
             i = Image3->GetPointIntensity(x,y);
 
-            if (Magnitude(x,y,-2) < -6776){
+            if (Magnitude(x,y,-2, Image) < -6776){
                 Image3->DrawPixel(x,y, 0,0,0);
             } else {
                 Image3->DrawPixel(x,y, r,g,b);
