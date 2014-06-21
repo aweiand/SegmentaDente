@@ -52,11 +52,10 @@ void printaMenu(){
     cout << " - - - - - " << endl;
     cout << "Menu:" << endl;
     cout << "'y' - Aplica Mediana" << endl;
+    cout << "'i' - Aplica Interval" << endl;
     cout << "'z' - Limpa Fundo" << endl;
     cout << "'j' - Acha Dentina" << endl;
     cout << "'q' - Expandir Pinos" << endl;
-    cout << "'c' - Copia NovaImagem para Image" << endl;
-    cout << "'d' - Copia Image3 para NovaImage" << endl;
     cout << "'e' - Acha Pinos" << endl;
     cout << "'p' - Colore Pinos" << endl;
     cout << "'t' - Ver Dentina" << endl;
@@ -67,6 +66,8 @@ void printaMenu(){
     cout << "'m' - Reimprime Menu" << endl;
     cout << "Seta para Cima aumenta Kernel_2" << endl;
     cout << "Seta para Baixo diminui Kernel_2" << endl;
+    cout << "Seta para Esquerda copia NovaImage para Image" << endl;
+    cout << "Seta para Direita copia Image para NovaImage" << endl;
     cout << " - - - - - " << endl;
 }
 
@@ -94,14 +95,31 @@ void init(void)
     NovaImagem  = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
     Image3      = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
 
-    Interval(Image, NovaImagem);
-    AchaPinos(Image, Image3);
-    ColorePinos();
-    ExpandePinos(Image, NovaImagem);
-    LimpaFundo();
-    ExpandePinos(Image, NovaImagem);
-    ExpandePinos(Image, NovaImagem);
-    AchaDentina();
+    ConvertBlackAndWhite(Image, NovaImagem);
+    NovaImagem->CopyTo(Image);
+    PassaBaixa(Image, NovaImagem);
+    NovaImagem->CopyTo(Image);
+    ColorePinos(Image, NovaImagem);
+    NovaImagem->CopyTo(Image);
+
+    for(int i=0; i<=4;i++){
+        ExpandePinos(Image, NovaImagem);
+        NovaImagem->CopyTo(Image);
+    }
+
+    LimpaFundo(Image, NovaImagem);
+    NovaImagem->CopyTo(Image);
+
+    //verDentina(Image, NovaImagem);
+
+//    Interval(Image, NovaImagem);
+//    AchaPinos(Image, NovaImagem);
+//    ColorePinos(NovaImagem, Image);
+//    ExpandePinos(Image, NovaImagem);
+//    NovaImagem->CopyTo(Image);
+
+//    LimpaFundo(Image, NovaImagem);
+//    AchaDentina();
 
     printaMenu();
 }
@@ -172,7 +190,7 @@ void keyboard ( unsigned char key, int x, int y )
     switch ( key )
     {
     case 'z':
-        LimpaFundo();
+        LimpaFundo(Image, NovaImagem);
         break;
     case 'j':
         AchaDentina();
@@ -196,22 +214,14 @@ void keyboard ( unsigned char key, int x, int y )
     case '3':
         PassaBaixa(Image, NovaImagem);
         break;
-    case 'c':
-        NovaImagem->CopyTo(Image);
-        cout << "NovaImagem copiada para Image" << endl;
-        break;
-    case 'd':
-        Image3->CopyTo(NovaImagem);
-        cout << "NovaImagem copiada para Image" << endl;
-        break;
     case 'e':
         AchaPinos(Image, Image3);
         break;
     case 'p':
-        ColorePinos();
+        ColorePinos(Image, NovaImagem);
         break;
     case 't':
-        verDentina();
+        verDentina(Image, NovaImagem);
         break;
     case 'l':
         limpaErrosDentina();
@@ -221,6 +231,9 @@ void keyboard ( unsigned char key, int x, int y )
         break;
     case 'm':
         printaMenu();
+        break;
+    case 'i':
+        Interval(Image, NovaImagem);
         break;
     default:
         break;
@@ -243,9 +256,18 @@ void arrow_keys ( int a_keys, int x, int y )
         kernel_2 -= 2;
         cout << "Kernel_2: " << kernel_2 << endl;
         break;
+    case GLUT_KEY_LEFT:     // When Down Arrow Is Pressed...
+        NovaImagem->CopyTo(Image);
+        cout << "NovaImagem Copiada para Image" << endl;
+        break;
+    case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
+        Image->CopyTo(NovaImagem);
+        cout << "Image Copiada para NovaImagem" << endl;
+        break;
     default:
         break;
     }
+    glutPostRedisplay();    // obrigatório para redesenhar a tela
 }
 
 // **********************************************************************

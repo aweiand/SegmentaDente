@@ -177,9 +177,9 @@ void ConvertBlackAndWhite(ImageClass *from, ImageClass *to){
             i = from->GetPointIntensity(x,y);
 
            if (i > 0 && i < 100)
-                to->DrawPixel(x, y, 255,0,0);
-			else
                 to->DrawPixel(x, y, 0,0,0);
+			else
+                to->DrawPixel(x, y, 255,255,255);
         }
     }
     cout << "Concluiu Black & White.\n";
@@ -220,118 +220,177 @@ void ExpandePinos(ImageClass *from, ImageClass *to){
     int i;
     cout << "Iniciou Expande Pinos....";
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++){
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++){
-            NovaImagem->ReadPixel(x,y,r,g,b);
+    for(x=KERNEL_SIZE;x<from->SizeX()-KERNEL_SIZE;x++){
+        for(y=KERNEL_SIZE;y<from->SizeY()-KERNEL_SIZE;y++){
+            from->ReadPixel(x,y,r,g,b);
 
             if (b == 255){
-                Image3->DrawPixel(x, y,0,0,255);
+                to->DrawPixel(x, y,0,0,255);
 
-                for (int h=1; h<10;h++){
-                    Image3->DrawPixel(x-h, y,0,0,255);
-                    Image3->DrawPixel(x-h, y-h,0,0,255);
+                for (int h=1; h<6;h++){
+                    to->DrawPixel(x-h, y,0,0,255);
+                    to->DrawPixel(x-h, y-h,0,0,255);
 
-                    Image3->DrawPixel(x+h, y,0,0,255);
-                    Image3->DrawPixel(x+h, y-h,0,0,255);
-                    Image3->DrawPixel(x, y-h,0,0,255);
+                    to->DrawPixel(x+h, y,0,0,255);
+                    to->DrawPixel(x+h, y-h,0,0,255);
+                    to->DrawPixel(x, y-h,0,0,255);
                 }
             } else {
-                Image3->DrawPixel(x, y,r,g,b);
+                to->DrawPixel(x, y,r,g,b);
             }
         }
     }
-    Image3->CopyTo(Image);
-    Image3->CopyTo(NovaImagem);
     cout << "Concluiu Expande Pinos.\n";
 }
 
 // **********************************************************************
 //      Função que pinta os pinos de azul
 // **********************************************************************
-void ColorePinos(){
+void ColorePinos(ImageClass *from, ImageClass *to){
+    unsigned char r,g,b;
     int x,y;
     int i;
     cout << "Iniciou ColorePinos....";
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
+    for(x=KERNEL_SIZE;x<from->SizeX()-KERNEL_SIZE;x++)
     {
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
+        for(y=KERNEL_SIZE;y<from->SizeY()-KERNEL_SIZE;y++)
         {
-            i = Image3->GetPointIntensity(x,y);
+            from->ReadPixel(x,y,r,g,b);
+            i = from->GetPointIntensity(x,y);
 
-            if (i < 100){
-                NovaImagem->DrawPixel(x, y, 0, 0, 255);
+            if (r == 255 && b == 255 && g == 255)
+                to->DrawPixel(x, y, 0, 0, 255);
+            else {
+                to->ReadPixel(x,y,r,g,b);
+                to->DrawPixel(x, y, r, g, b);
             }
         }
     }
     cout << "Concluiu ColorePinos.\n";
 }
 
+void expandeDentina(ImageClass *from, ImageClass *to){
+    unsigned char r,g,b;
+    int x,y;
+    int i;
+
+    for(x=KERNEL_SIZE;x<from->SizeX()-KERNEL_SIZE;x++){
+        for(y=KERNEL_SIZE;y<from->SizeY()-KERNEL_SIZE;y++){
+            bool eh = true;
+            for (int h=1; h<8;h++){
+                from->ReadPixel(x+h,y,r,g,b);
+                if (g != 255){
+                    eh == false;
+                    break;
+                }
+            }
+
+            if (g == 255 && eh){
+                to->DrawPixel(x, y,0,255, 0);
+
+                for (int h=1; h<8;h++){
+                    to->DrawPixel(x-h, y,0,255,0);
+                    to->DrawPixel(x-h, y-h,0,255,0);
+
+                    to->DrawPixel(x+h, y,0,255,0);
+                    to->DrawPixel(x+h, y-h,0,255,0);
+                    to->DrawPixel(x, y-h,0,255,0);
+                }
+            } else {
+                to->DrawPixel(x, y,r,g,b);
+            }
+        }
+    }
+
+    for(x=KERNEL_SIZE;x<from->SizeX()-KERNEL_SIZE;x++){
+        for(y=KERNEL_SIZE;y<from->SizeY()-KERNEL_SIZE;y++){
+            bool eh = true;
+            for (int h=0; h<8;h++){
+                from->ReadPixel(x+h,y,r,g,b);
+                if (g != 255){
+                    eh == false;
+                    break;
+                }
+            }
+
+            if (!eh){
+                for (int h=0; h<8;h++){
+                    to->DrawPixel(x+h, y,0,0, 0);
+                    to->DrawPixel(x+h, y-1,0,0, 0);
+                }
+                y+=10;
+            }
+        }
+    }
+}
+
 // **********************************************************************
 //      Função que pinta a dentina de verde
 // **********************************************************************
-void verDentina(int tam = 3){
+void verDentina(ImageClass *from, ImageClass *to, int tam = 3){
     unsigned char r,g,b;
     int x,y;
     cout << "Iniciou VerDentina....";
 
-    NovaImagem->CopyTo(Image3);
+    for(x=KERNEL_SIZE;x<from->SizeX()-KERNEL_SIZE;x++){
+        for(y=KERNEL_SIZE;y<from->SizeY()-KERNEL_SIZE;y++){
+            from->ReadPixel(x,y,r,g,b);
+            if (b != 255){
+                if (
+                    from->GetPointIntensity(x,y) == from->GetPointIntensity(x+1,y) &&
+                    from->GetPointIntensity(x,y) == from->GetPointIntensity(x+2,y) &&
+                    from->GetPointIntensity(x,y) == from->GetPointIntensity(x+3,y) &&
+                    from->GetPointIntensity(x,y) == from->GetPointIntensity(x+4,y) &&
+                    from->GetPointIntensity(x,y) == from->GetPointIntensity(x+5,y) &&
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
-    {
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
-        {
-            float soma = 0;
-            for(int i =0; i<=tam;i++){
-                for(int j =0; j<=tam;j++){
-                    if (i == 0 || i == 3){
-                        soma = soma + NovaImagem->GetPointIntensity(x+i,y+j) * -2;
-                    } else {
-                        soma = soma + NovaImagem->GetPointIntensity(x+i,y+j) * 2;
-                    }
+                    from->GetPointIntensity(x,y) == from->GetPointIntensity(x,y+1) &&
+                    from->GetPointIntensity(x,y) == from->GetPointIntensity(x,y+2) &&
+                    from->GetPointIntensity(x,y) == from->GetPointIntensity(x,y+3) &&
+                    from->GetPointIntensity(x,y) == from->GetPointIntensity(x,y+4) &&
+                    from->GetPointIntensity(x,y) == from->GetPointIntensity(x,y+5)
+                    ){
+                    to->DrawPixel(x, y,0,255,0);
+                    to->DrawPixel(x+1, y,0,255,0);
+                    to->DrawPixel(x+2, y,0,255,0);
+                    to->DrawPixel(x+3, y,0,255,0);
+                    to->DrawPixel(x+4, y,0,255,0);
+                    to->DrawPixel(x+5, y,0,255,0);
+
+                    to->DrawPixel(x, y+1,0,255,0);
+                    to->DrawPixel(x, y+2,0,255,0);
+                    to->DrawPixel(x, y+3,0,255,0);
+                    to->DrawPixel(x, y+4,0,255,0);
+                    to->DrawPixel(x, y+5,0,255,0);
                 }
-            }
-
-            if (soma > NovaImagem->GetPointIntensity(x,y)){
-                Image3->DrawPixel(x ,y , 255,0,0);
-                Image3->DrawPixel(x+1 ,y , 255,0,0);
-                Image3->DrawPixel(x+1 ,y+1 , 255,0,0);
-                Image3->DrawPixel(x ,y-1 , 255,0,0);
-                Image3->DrawPixel(x-1 ,y , 255,0,0);
-                Image3->DrawPixel(x-1 ,y-1 , 255,0,0);
             }
         }
     }
+
     cout << "Concluiu VerDentina.\n";
 }
 
 // **********************************************************************
 //      Função que remove os pontos "perdidos" do fundo
 // **********************************************************************
-void LimpaFundo(){
+void LimpaFundo(ImageClass *from, ImageClass *to){
     unsigned char r,g,b;
     int x,y;
     int i;
     cout << "Iniciou LimpaFundo....";
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
-    {
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
-        {
-            NovaImagem->ReadPixel(x,y,r,g,b);
-            i = Image->GetPointIntensity(x,y);
+    for(x=KERNEL_SIZE;x<from->SizeX()-KERNEL_SIZE;x++){
+        for(y=KERNEL_SIZE;y<from->SizeY()-KERNEL_SIZE;y++){
+            from->ReadPixel(x,y,r,g,b);
+            i = from->GetPointIntensity(x,y);
 
-            int m = MediaDosVizinhos(x,y, NovaImagem);
-
-            if (m > 10 && m < 45 && b != 255){
-                Image3->DrawPixel(x, y,0,0,0);
-            } else {
-                Image3->DrawPixel(x, y, r, g, b);
-            }
+            if (i < 35 && b != 255)
+                to->DrawPixel(x, y,0,0,0);
+            else
+                to->DrawPixel(x, y, r, g, b);
         }
     }
 
-    Image3->CopyTo(NovaImagem);
     cout << "Concluiu LimpaFundo.\n";
 }
 
