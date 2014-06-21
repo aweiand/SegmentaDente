@@ -1,3 +1,17 @@
+// **********************************************************************
+// PUCRS/FACIN
+// COMPUTAÇÃO GRÁFICA
+//
+//	methods.cpp
+//  Programa de segmentação de Imagens de Micro Tomografia
+//  de dentes com algoritmos de segmentação por linear.
+//
+//	Augusto Weiand <guto.weiand@gmail.com>
+// **********************************************************************
+
+// **********************************************************************
+//      Função que monta um array com o histograma da imagem
+// **********************************************************************
 void getHistograma(){
     int x,y;
     int i;
@@ -28,6 +42,10 @@ void getHistograma(){
     cout << " - Calculo do histograma Finalizado.\n";
 }
 
+// **********************************************************************
+//      Função que Lineariza o histograma da Imagem
+//      deixando o linear no máximo a 55
+// **********************************************************************
 void linearHisto(){
 	unsigned char r,g,b;
     int x,y;
@@ -50,8 +68,60 @@ void linearHisto(){
     cout << "Concluiu Linear Histo.\n";
 }
 
-int MediaDosVizinhos(int x, int y)
-{
+// **********************************************************************
+//      Função de comparação para ordenar um array
+// **********************************************************************
+int cmpfunc(const void * a, const void * b){
+   return ( *(int*)a - *(int*)b );
+}
+
+// **********************************************************************
+//      Função de cálculo de Mediana
+// **********************************************************************
+int Mediana(int x, int y, int kernel, ImageClass *img){
+    int soma = 0, i = 0;
+    int ker = (kernel-1)/2;
+    int arr[(kernel*kernel)];
+
+    for(int i =-ker; i<=ker;i++){
+        for(int j =-ker; j<=ker;j++){
+            if (x+i > 0 && y+i > 0 && x+i < img->SizeX() && y+i < img->SizeY()){
+                arr[i] = img->GetPointIntensity(x+i,y+j);
+                i++;
+            }
+        }
+    }
+
+    qsort(arr, kernel*kernel, sizeof(int), cmpfunc);
+
+    return arr[(ker+1)];
+}
+
+// **********************************************************************
+//      Função que aplica a Mediana
+// **********************************************************************
+void AplicaMediana(ImageClass *from, ImageClass *to, int kernel_2 = 2){
+	unsigned char r,g,b;
+    int x,y;
+    int i;
+    cout << "Iniciou Aplica Mediana....";
+
+    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
+    {
+        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
+        {
+            int m = Mediana(x,y, kernel_2, from);
+            to->DrawPixel(x, y,m,m,m);
+        }
+    }
+    cout << "Concluiu Aplica Mediana.\n";
+}
+
+// **********************************************************************
+//      Função que calcula a média dos vizinhos dos pontos
+//      de acordo com o KERNEL_SIZE
+// **********************************************************************
+int MediaDosVizinhos(int x, int y){
     int soma = 0;
     for(int i =-KERNEL_SIZE; i<=KERNEL_SIZE;i++){
         for(int j =-KERNEL_SIZE; j<=KERNEL_SIZE;j++){
@@ -64,15 +134,9 @@ int MediaDosVizinhos(int x, int y)
 }
 
 // **********************************************************************
-//  void PassaBaixa()
-//
-//
+//      Função que aplica o filtro de passa baixa
 // **********************************************************************
-void PassaBaixa()
-{
-    // Tarefa 1:
-    //  Mude o valor do LIMIAR para números pequenos como 5 ou 10
-
+void PassaBaixa(){
 	unsigned char r,g,b;
     int x,y;
     int i;
@@ -93,11 +157,13 @@ void PassaBaixa()
         }
     }
     cout << "Concluiu Passa Baixa.\n";
-
 }
 
-void Interval()
-{
+// **********************************************************************
+//      Função que limiariza o histograma da imagem de acordo
+//      de acordo com os intervalor especificados
+// **********************************************************************
+void Interval(){
     int x,y;
     int i;
     cout << "Iniciou Interval....";
@@ -121,16 +187,11 @@ void Interval()
     cout << "Concluiu Interval.\n";
 
 }
-// **********************************************************************
-//  void ConvertBlackAndWhite()
-//
-//
-// **********************************************************************
-void ConvertBlackAndWhite()
-{
-    // Tarefa 1:
-    //  Mude o valor do LIMIAR para números pequenos como 5 ou 10
 
+// **********************************************************************
+//      Função que converte a imagem em preto e branco
+// **********************************************************************
+void ConvertBlackAndWhite(){
 	unsigned char r,g,b;
     int x,y;
     int i;
@@ -156,21 +217,10 @@ void ConvertBlackAndWhite()
 
 }
 
-
 // **********************************************************************
-// void DetectImageBorders()
-//
-//
+//      Função que encontra os pinos de acordo com a média
+//      dos vizinhos dos pontos
 // **********************************************************************
-void DetectImageBorders()
-{
-
-    // varredura vertical
-
-    // varredura horizontal
-
-}
-
 void AchaPinos(){
     int x,y;
     int i;
@@ -195,6 +245,11 @@ void AchaPinos(){
     cout << "Concluiu AchaPinos.\n";
 }
 
+// **********************************************************************
+//      Função que aplica a expansão nos pinos com máscara
+//                                                  OXO
+//                                                  OOO
+// **********************************************************************
 void ExpandePinos(){
     unsigned char r,g,b;
     int x,y;
@@ -228,6 +283,9 @@ void ExpandePinos(){
     cout << "Concluiu Expande Pinos.\n";
 }
 
+// **********************************************************************
+//      Função que pinta os pinos de azul
+// **********************************************************************
 void ColorePinos(){
     int x,y;
     int i;
@@ -247,6 +305,9 @@ void ColorePinos(){
     cout << "Concluiu ColorePinos.\n";
 }
 
+// **********************************************************************
+//      Função que pinta a dentina de verde
+// **********************************************************************
 void verDentina(int tam = 3){
     unsigned char r,g,b;
     int x,y;
@@ -282,7 +343,9 @@ void verDentina(int tam = 3){
     cout << "Concluiu VerDentina.\n";
 }
 
-
+// **********************************************************************
+//      Função que remove os pontos "perdidos" do fundo
+// **********************************************************************
 void LimpaFundo(){
     unsigned char r,g,b;
     int x,y;
@@ -310,6 +373,9 @@ void LimpaFundo(){
     cout << "Concluiu LimpaFundo.\n";
 }
 
+// **********************************************************************
+//      Função para encontrar a dentina
+// **********************************************************************
 void AchaDentina(){
     unsigned char r,g,b;
     int x,y;
@@ -337,6 +403,9 @@ void AchaDentina(){
     cout << "Concluiu AchaDentina.\n";
 }
 
+// **********************************************************************
+//      Função que calcula a magnitude da imagem
+// **********************************************************************
 int Magnitude(int x, int y, int masc){
     int soma = 0;
     for(int i =-KERNEL_SIZE; i<=KERNEL_SIZE;i++){
@@ -348,6 +417,9 @@ int Magnitude(int x, int y, int masc){
     return soma;
 }
 
+// **********************************************************************
+//      Função que limpa os erros da dentina
+// **********************************************************************
 void limpaErrosDentina(){
     unsigned char r,g,b;
     int x,y;

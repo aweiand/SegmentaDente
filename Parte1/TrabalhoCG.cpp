@@ -1,6 +1,12 @@
 // **********************************************************************
 // PUCRS/FACIN
 // COMPUTAÇÃO GRÁFICA
+//
+//	TrabalhoCG.cpp
+//  Programa de segmentação de Imagens de Micro Tomografia
+//  de dentes com algoritmos de segmentação por linear.
+//
+//	Augusto Weiand <guto.weiand@gmail.com>
 // **********************************************************************
 
 #include <iostream>
@@ -8,17 +14,19 @@
 using namespace std;
 
 #ifdef WIN32
-#include <windows.h>
-#include "gl\glut.h"
+    #include <windows.h>
+    #include "gl\glut.h"
 #endif
 
 #ifdef __APPLE__
-#include <GL/glut.h>
+    #include <GL/glut.h>
 #endif
 
 #include "SOIL/SOIL.h"
 #include "ImageClass.h"
 
+// **********************************************************************
+// Variáveis das imagens e outras globais utilizadas no sistema
 ImageClass *Image, *NovaImagem, *Image3;
 
 #define LIMIAR 100
@@ -29,16 +37,40 @@ ImageClass *Image, *NovaImagem, *Image3;
 int histo[255];
 int media = 0;
 int **pinos;
+// **********************************************************************
 
+// **********************************************************************
+// Biblioteca de métodos para a segmentação
 #include "methods.h"
+// **********************************************************************
+
 
 // **********************************************************************
-//  void init(void)
-//  Inicializa os parâmetros globais de OpenGL
-//
+//      Mostra na tela o menu de opções
 // **********************************************************************
-void init(void)
-{
+void printaMenu(){
+    cout << " - - - - - " << endl;
+    cout << "Menu:" << endl;
+    cout << "'z' - Limpa Fundo" << endl;
+    cout << "'j' - Acha Dentina" << endl;
+    cout << "'q' - Expandir Pinos" << endl;
+    cout << "'e' - Acha Pinos" << endl;
+    cout << "'p' - Colore Pinos" << endl;
+    cout << "'t' - Ver Dentina" << endl;
+    cout << "'l' - Limpa Erros Dentina" << endl;
+    cout << "'2' - ConvertBlackAndWhite" << endl;
+    cout << "'3' - Passa Baixa" << endl;
+    cout << "'9' - Salva NovaImagem" << endl << endl;
+    cout << "'m' - Reimprime Menu" << endl;
+    cout << "Seta para Esquerda copia NovaImage para Image" << endl;
+    cout << "Seta para Direita copia Image para NovaImage" << endl;
+    cout << " - - - - - " << endl;
+}
+
+// **********************************************************************
+//      Inicializa o sistema e o OpenGL
+// **********************************************************************
+void init(void){
     Image = new ImageClass();
     int r;
 
@@ -66,6 +98,8 @@ void init(void)
     ExpandePinos();
     ExpandePinos();
     AchaDentina();
+
+    printaMenu();
 }
 
 // **********************************************************************
@@ -73,9 +107,7 @@ void init(void)
 //  trata o redimensionamento da janela OpenGL
 //
 // **********************************************************************
-void reshape( int w, int h )
-{
-
+void reshape( int w, int h ){
     // Reset the coordinate system before modifying
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -86,16 +118,12 @@ void reshape( int w, int h )
     // Set the clipping volume
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
-
 }
+
 // **********************************************************************
-//  void display( void )
-//
-//
+//      Display
 // **********************************************************************
-void display( void )
-{
+void display( void ){
     glClear(GL_COLOR_BUFFER_BIT);
 
     glMatrixMode(GL_MODELVIEW);
@@ -127,17 +155,14 @@ void display( void )
     glutSwapBuffers();
 }
 
-
 // **********************************************************************
-//  void keyboard ( unsigned char key, int x, int y )
-//
-//
+//      Trata os eventos do teclado
 // **********************************************************************
-void keyboard ( unsigned char key, int x, int y )
-{
-
-    switch ( key )
-    {
+void keyboard ( unsigned char key, int x, int y ){
+    switch ( key ){
+    case 'm':
+        printaMenu();
+        break;
     case 'z':
         LimpaFundo();
         break;
@@ -163,14 +188,6 @@ void keyboard ( unsigned char key, int x, int y )
     case '3':
         PassaBaixa();
         break;
-    case 'c':
-        NovaImagem->CopyTo(Image);
-        cout << "NovaImagem copiada para Image" << endl;
-        break;
-    case 'd':
-        Image3->CopyTo(NovaImagem);
-        cout << "NovaImagem copiada para Image" << endl;
-        break;
     case 'e':
         AchaPinos();
         break;
@@ -186,35 +203,34 @@ void keyboard ( unsigned char key, int x, int y )
     default:
         break;
     }
+
     glutPostRedisplay();    // obrigatório para redesenhar a tela
 }
 
 // **********************************************************************
-//  void arrow_keys ( int a_keys, int x, int y )
-//
-//
+//      Trata teclas especiais
 // **********************************************************************
-void arrow_keys ( int a_keys, int x, int y )
-{
-    switch ( a_keys )
-    {
-    case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
+void arrow_keys ( int a_keys, int x, int y ){
+    switch ( a_keys ){
+    case GLUT_KEY_LEFT:       // When Up Arrow Is Pressed...
+        NovaImagem->CopyTo(Image);
+        cout << "NovaImagem copiada para Image" << endl;
         break;
-    case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
-
+    case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
+        Image->CopyTo(NovaImagem);
+        cout << "Image copiada para NovaImagem" << endl;
         break;
     default:
         break;
     }
+
+    glutPostRedisplay();
 }
 
 // **********************************************************************
-//  void main ( int argc, char** argv )
-//
-//
+//      Função principal do sistema
 // **********************************************************************
-int main ( int argc, char** argv )
-{
+int main ( int argc, char** argv ){
     glutInit            ( &argc, argv );
     glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );
     glutInitWindowPosition (500,70);
