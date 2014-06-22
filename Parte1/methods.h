@@ -83,7 +83,7 @@ int Mediana(int x, int y, int kernel, ImageClass *img){
         for(int j =-ker; j<=ker;j++){
             if (x+i > 0 && y+i > 0 && x+i < img->SizeX() && y+i < img->SizeY()){
                 arr[h] = img->GetPointIntensity(x+i,y+j);
-                i++;
+                h++;
             }
         }
     }
@@ -96,14 +96,12 @@ int Mediana(int x, int y, int kernel, ImageClass *img){
 // **********************************************************************
 //      Função que aplica a Mediana
 // **********************************************************************
-void AplicaMediana(ImageClass *from, ImageClass *to, int kernel_2 = 2){
+void AplicaMediana(ImageClass *from, ImageClass *to, int kernel_2 = 3){
     int x,y;
-    cout << "Iniciou Aplica Mediana....";
+    cout << "Iniciou Aplica Mediana | kernel " << kernel_2 << endl;
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
-    {
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
-        {
+    for(x=kernel_2;x<from->SizeX()-kernel_2;x++){
+        for(y=kernel_2;y<from->SizeY()-kernel_2;y++){
             int m = Mediana(x,y, kernel_2, from);
             to->DrawPixel(x, y,m,m,m);
         }
@@ -370,10 +368,8 @@ void AchaDentina(){
     int x,y;
     cout << "Iniciou AchaDentina....";
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
-    {
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
-        {
+    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++){
+        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++){
             NovaImagem->ReadPixel(x,y,r,g,b);
 
             int m = MediaDosVizinhos(x,y);
@@ -409,17 +405,63 @@ int Magnitude(int x, int y, int masc){
 // **********************************************************************
 void limpaErrosDentina(){
     unsigned char r,g,b;
+    int x,y, quant = 0;
+    cout << "Iniciou limpaErrosDentina...." << endl;
+
+    for(x=0;x<NovaImagem->SizeX();x++){
+        for(y=0;y<NovaImagem->SizeY();y++){
+            NovaImagem->ReadPixel(x,y,r,g,b);
+
+            if (g == 255 && b == 0 && r == 0){
+                while(g == 255 && b == 0 && r == 0){
+                    quant++;
+                    y++;
+                    NovaImagem->ReadPixel(x,y,r,g,b);
+                }
+
+                if (quant <= kernel_mediana){
+                    for(int i=y-quant; i<=y; i++){
+                        Image3->DrawPixel(x,i, 0,0,0);
+                    }
+                } else {
+                    quant = 0;
+                    y = y-quant;
+                }
+            } else {
+                Image3->DrawPixel(x,y, r,g,b);
+            }
+        }
+    }
+    cout << "Concluiu limpaErrosDentina.\n";
+}
+
+void achaCanal(){
+    unsigned char r,g,b;
     int x,y;
-    cout << "Iniciou limpaErrosDentina....";
+    int borders = 200;
+    cout << "Iniciou Acha Canal...." << endl;
 
-    for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
-    {
-        for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
-        {
-            Image3->ReadPixel(x,y,r,g,b);
+    for(x=borders;x<NovaImagem->SizeX()-borders;x++){
+        for(y=borders;y<NovaImagem->SizeY()-borders;y++){
+            NovaImagem->ReadPixel(x,y,r,g,b);
 
-            if (Magnitude(x,y,-2) < -6776){
-                Image3->DrawPixel(x,y, 0,0,0);
+            if (g == 255 && b == 0 && r == 0){
+                NovaImagem->ReadPixel(x,y+1,r,g,b);
+                if (g == 0 && b == 0 && r == 0){
+                    int conta = 0;
+                    while(g == 0 && b == 0 && r == 0){
+                        conta++;
+                        y++;
+                        NovaImagem->ReadPixel(x,y,r,g,b);
+                    }
+
+                    NovaImagem->ReadPixel(x,y++,r,g,b);
+                    if (conta > 15 && conta < 200 && g == 255){
+                        for(int i=y-conta; i<=y; i++){
+                            Image3->DrawPixel(x,i, 255,0,0);
+                        }
+                    }
+                }
             } else {
                 Image3->DrawPixel(x,y, r,g,b);
             }
@@ -427,6 +469,6 @@ void limpaErrosDentina(){
     }
 
     Image3->CopyTo(NovaImagem);
-    cout << "Concluiu limpaErrosDentina.\n";
-}
 
+    cout << "Concluiu Acha Canal.\n";
+}

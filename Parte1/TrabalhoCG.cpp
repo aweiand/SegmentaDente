@@ -39,6 +39,7 @@ ImageClass *Image, *NovaImagem, *Image3;
 
 int histo[255];
 int media = 0;
+int kernel_mediana = 11;
 int **pinos;
 FILE *fp;
 tinydir_dir dir;
@@ -58,6 +59,7 @@ tinydir_dir dir;
 void printaMenu(){
     cout << " - - - - - " << endl;
     cout << "Menu:" << endl;
+    cout << "'b' - Acha Canal" << endl;
     cout << "'z' - Limpa Fundo" << endl;
     cout << "'j' - Acha Dentina" << endl;
     cout << "'i' - Interval" << endl;
@@ -65,6 +67,8 @@ void printaMenu(){
     cout << "'e' - Acha Pinos" << endl;
     cout << "'p' - Colore Pinos" << endl;
     cout << "'t' - Ver Dentina" << endl;
+    cout << "'k' - Trata a imagem atual" << endl;
+    cout << "'f' - Aplica Mediana" << endl;
     cout << "'l' - Limpa Erros Dentina" << endl;
     cout << "'2' - ConvertBlackAndWhite" << endl;
     cout << "'3' - Passa Baixa" << endl;
@@ -77,6 +81,26 @@ void printaMenu(){
     cout << " - - - - - " << endl;
 }
 
+// **********************************************************************
+//      Sequencia de algoritmos para tratar as imagens
+// **********************************************************************
+void algoritmoTratamento(){
+    Interval(); // i
+    AchaPinos(); // e
+    ColorePinos(); // p
+    ExpandePinos(); // q
+    LimpaFundo(); // z
+    ExpandePinos(); // q
+    ExpandePinos(); // q
+    AchaDentina(); // j
+    achaCanal(); // b
+}
+
+
+// **********************************************************************
+//      Trata as imagens da pasta dataIN, colocando o resultado
+//      na pasta dataOUT e o relatorio na pasta dataREPORT
+// **********************************************************************
 void trataImagens(){
     tinydir_open(&dir, ".\\dataIN\\");
 
@@ -101,14 +125,7 @@ void trataImagens(){
                 NovaImagem  = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
                 Image3      = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
 
-                Interval(); // i
-                AchaPinos(); // e
-                ColorePinos(); // p
-                ExpandePinos(); // q
-                LimpaFundo(); // z
-                ExpandePinos(); // q
-                ExpandePinos(); // q
-                AchaDentina(); // j
+                algoritmoTratamento();
 
                 report(groundfile, filein.name);
 
@@ -182,8 +199,6 @@ void display( void ){
     Image3->SetZoomH(zoomH);
     Image3->SetZoomV(zoomV);
 
-// Desenha uma Linha Vermelha
-    Image->DrawLine(0,0,1000,1000, 255,0,0);
 // Coloca as imagens na tela
     Image->Display();
     NovaImagem->Display();
@@ -198,6 +213,17 @@ void display( void ){
 // **********************************************************************
 void keyboard ( unsigned char key, int x, int y ){
     switch ( key ){
+    case 'b':
+        achaCanal();
+        break;
+    case 'k':
+        cout << "Iniciou tratamento de imagem atual..." << endl;
+        algoritmoTratamento();
+        cout << "Finalizou o tratamento da imagem atual..." << endl;
+        break;
+    case 'f':
+        AplicaMediana(Image3, NovaImagem, kernel_mediana);
+        break;
     case 'u':
         Image->Load("generate.png");
         break;
@@ -266,6 +292,22 @@ void arrow_keys ( int a_keys, int x, int y ){
     case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
         Image->CopyTo(NovaImagem);
         cout << "Image copiada para NovaImagem" << endl;
+        break;
+    case GLUT_KEY_UP:     // When Down Arrow Is Pressed...
+        Image3->CopyTo(NovaImagem);
+        cout << "Image3 copiada para NovaImagem" << endl;
+        break;
+    case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
+        Image->CopyTo(Image3);
+        cout << "Image copiada para Image3" << endl;
+        break;
+    case GLUT_KEY_PAGE_DOWN:
+        kernel_mediana -= 1;
+        cout << "Kernel da Mediana: " << kernel_mediana << endl;
+        break;
+    case GLUT_KEY_PAGE_UP:
+        kernel_mediana += 1;
+        cout << "Kernel da Mediana: " << kernel_mediana << endl;
         break;
     default:
         break;

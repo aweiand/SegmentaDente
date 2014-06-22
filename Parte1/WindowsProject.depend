@@ -386,7 +386,7 @@
 
 1215465208 c:\users\gutow\documents\cg\segmentadente\parte1\soil\stbi_dds_aug_c.h
 
-1403404929 source:c:\users\gutow\documents\cg\segmentadente\parte1\trabalhocg.cpp
+1403462136 source:c:\users\gutow\documents\cg\segmentadente\parte1\trabalhocg.cpp
 	<iostream>
 	<string>
 	<stdlib.h>
@@ -400,7 +400,7 @@
 	"methods.h"
 	"report.h"
 
-1403401256 c:\users\gutow\documents\cg\segmentadente\parte1\methods.h
+1403462395 c:\users\gutow\documents\cg\segmentadente\parte1\methods.h
 
 1403393454 c:\users\gutow\documents\cg\segmentadente\parte1\tinydir.h
 	<errno.h>
@@ -411,5 +411,5 @@
 	<libgen.h>
 	<sys/stat.h>
 
-1403406742 c:\users\gutow\documents\cg\segmentadente\parte1\report.h
+1403406956 c:\users\gutow\documents\cg\segmentadente\parte1\report.h
 
