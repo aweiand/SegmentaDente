@@ -10,12 +10,15 @@
 // **********************************************************************
 
 #include <iostream>
+#include <string>
 #include <stdlib.h>
+#include <stdio.h>
 using namespace std;
 
 #ifdef WIN32
     #include <windows.h>
     #include "gl\glut.h"
+    #include "tinydir.h"
 #endif
 
 #ifdef __APPLE__
@@ -37,11 +40,15 @@ ImageClass *Image, *NovaImagem, *Image3;
 int histo[255];
 int media = 0;
 int **pinos;
+FILE *fp;
+tinydir_dir dir;
 // **********************************************************************
 
 // **********************************************************************
 // Biblioteca de métodos para a segmentação
 #include "methods.h"
+// Biblioteca para montar e gerar o relatorio
+#include "report.h"
 // **********************************************************************
 
 
@@ -53,6 +60,7 @@ void printaMenu(){
     cout << "Menu:" << endl;
     cout << "'z' - Limpa Fundo" << endl;
     cout << "'j' - Acha Dentina" << endl;
+    cout << "'i' - Interval" << endl;
     cout << "'q' - Expandir Pinos" << endl;
     cout << "'e' - Acha Pinos" << endl;
     cout << "'p' - Colore Pinos" << endl;
@@ -64,40 +72,70 @@ void printaMenu(){
     cout << "'m' - Reimprime Menu" << endl;
     cout << "Seta para Esquerda copia NovaImage para Image" << endl;
     cout << "Seta para Direita copia Image para NovaImage" << endl;
+    cout << "..........." << endl;
+    cout << "'7' - Tratar as Imagens em dataIN colocando o resultado em dataOUT com relatorio em dataREPORT." << endl;
     cout << " - - - - - " << endl;
+}
+
+void trataImagens(){
+    tinydir_open(&dir, ".\\dataIN\\");
+
+    while (dir.has_next){
+        tinydir_file filein;
+        tinydir_readfile(&dir, &filein);
+        char groundfile[1024] = ".\\dataGROUND\\";
+        char fromfile[1024] = ".\\dataIN\\";
+        char tofile[1024] = ".\\dataOUT\\";
+
+        if (strlen(filein.name) > 4){
+            Image->Delete();
+            NovaImagem->Delete();
+            Image3->Delete();
+
+            Image = new ImageClass();
+            int r = Image->Load(strcat(fromfile, filein.name));
+            if (r){
+                // Instacia o objeto que irá exibir a nova imagem
+                // Caso precise alterar o tamanho da nova imagem, mude os parâmetros
+                // da construtura, na chamada abaixo
+                NovaImagem  = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
+                Image3      = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
+
+                Interval(); // i
+                AchaPinos(); // e
+                ColorePinos(); // p
+                ExpandePinos(); // q
+                LimpaFundo(); // z
+                ExpandePinos(); // q
+                ExpandePinos(); // q
+                AchaDentina(); // j
+
+                report(groundfile, filein.name);
+
+                NovaImagem->Save(strcat(tofile, filein.name));
+            }
+        }
+        tinydir_next(&dir);
+    }
+    tinydir_close(&dir);
+
+    cout << "Processo de Tratamento de Imagens Concluido!" << endl;
+    printaMenu();
 }
 
 // **********************************************************************
 //      Inicializa o sistema e o OpenGL
 // **********************************************************************
 void init(void){
-    Image = new ImageClass();
-    int r;
-
     glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Fundo de tela preto
 
-    r = Image->Load("775.png");
-    //r = Image->Load("647.png");
+    //trataImagens();
 
-    if (!r)
-        exit(1);
-    else
-        cout << ("Imagem carregada!\n");
+    Image = new ImageClass();
+    Image->Load("default.png");
 
-    // Instacia o objeto que irá exibir a nova imagem
-    // Caso precise alterar o tamanho da nova imagem, mude os parâmetros
-    // da construtura, na chamada abaixo
     NovaImagem  = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
     Image3      = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
-
-    Interval();
-    AchaPinos();
-    ColorePinos();
-    ExpandePinos();
-    LimpaFundo();
-    ExpandePinos();
-    ExpandePinos();
-    AchaDentina();
 
     printaMenu();
 }
@@ -160,6 +198,12 @@ void display( void ){
 // **********************************************************************
 void keyboard ( unsigned char key, int x, int y ){
     switch ( key ){
+    case 'u':
+        Image->Load("generate.png");
+        break;
+    case '7':
+        trataImagens();
+        break;
     case 'm':
         printaMenu();
         break;
@@ -172,11 +216,11 @@ void keyboard ( unsigned char key, int x, int y ){
     case 'q':
         ExpandePinos();
         break;
-    case 27: // Termina o programa qdo
+    case 27: // Termina o programa qdo a tecla ESC for pressionada
         NovaImagem->Delete();
         Image->Delete();
         Image3->Delete();
-        exit ( 0 );   // a tecla ESC for pressionada
+        exit (0);
         break;
     case '9':
         NovaImagem->Save("generate.png");
@@ -199,6 +243,9 @@ void keyboard ( unsigned char key, int x, int y ){
         break;
     case 'l':
         limpaErrosDentina();
+        break;
+    case 'i':
+        Interval();
         break;
     default:
         break;

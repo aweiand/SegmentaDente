@@ -2,7 +2,7 @@
 // PUCRS/FACIN
 // COMPUTAÇÃO GRÁFICA
 //
-//	methods.cpp
+//	methods.h
 //  Programa de segmentação de Imagens de Micro Tomografia
 //  de dentes com algoritmos de segmentação por linear.
 //
@@ -14,7 +14,6 @@
 // **********************************************************************
 void getHistograma(){
     int x,y;
-    int i;
     cout << "Iniciando calculo do histograma....";
 
     for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
@@ -25,15 +24,13 @@ void getHistograma(){
         }
     }
 
-    int pontoa = 0, valora = 0;
-    int pontob = 0, valorb = 0;
+    int pontoa = 0;
+    int pontob = 0;
     for(x = 0; x <=255; x++){
         if (histo[x] >= pontoa){
             pontoa = x;
-            valora = histo[x];
         } else if (histo[x] >= pontob){
             pontob = x;
-            valorb = histo[x];
         }
     }
 
@@ -47,7 +44,6 @@ void getHistograma(){
 //      deixando o linear no máximo a 55
 // **********************************************************************
 void linearHisto(){
-	unsigned char r,g,b;
     int x,y;
     int i;
     cout << "Iniciou Linear Histo....";
@@ -79,14 +75,14 @@ int cmpfunc(const void * a, const void * b){
 //      Função de cálculo de Mediana
 // **********************************************************************
 int Mediana(int x, int y, int kernel, ImageClass *img){
-    int soma = 0, i = 0;
+    int h = 0;
     int ker = (kernel-1)/2;
     int arr[(kernel*kernel)];
 
     for(int i =-ker; i<=ker;i++){
         for(int j =-ker; j<=ker;j++){
             if (x+i > 0 && y+i > 0 && x+i < img->SizeX() && y+i < img->SizeY()){
-                arr[i] = img->GetPointIntensity(x+i,y+j);
+                arr[h] = img->GetPointIntensity(x+i,y+j);
                 i++;
             }
         }
@@ -101,9 +97,7 @@ int Mediana(int x, int y, int kernel, ImageClass *img){
 //      Função que aplica a Mediana
 // **********************************************************************
 void AplicaMediana(ImageClass *from, ImageClass *to, int kernel_2 = 2){
-	unsigned char r,g,b;
     int x,y;
-    int i;
     cout << "Iniciou Aplica Mediana....";
 
     for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
@@ -139,7 +133,6 @@ int MediaDosVizinhos(int x, int y){
 void PassaBaixa(){
 	unsigned char r,g,b;
     int x,y;
-    int i;
     cout << "Iniciou Passa Baixa....";
     //NovaImagem->DrawPixel(20, 1,100,255,0,0 );
 
@@ -147,7 +140,6 @@ void PassaBaixa(){
     {
         for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
         {
-            i = Image->GetPointIntensity(x,y);
 			Image->ReadPixel(x,y,r,g,b);
 
             // printf("Intens Fora: %5d\n",i);
@@ -223,15 +215,12 @@ void ConvertBlackAndWhite(){
 // **********************************************************************
 void AchaPinos(){
     int x,y;
-    int i;
     cout << "Iniciou AchaPinos....";
 
     for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
     {
         for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
         {
-            i = Image->GetPointIntensity(x,y);
-
             int m = MediaDosVizinhos(x,y);
 
             if (m > 100){
@@ -253,7 +242,6 @@ void AchaPinos(){
 void ExpandePinos(){
     unsigned char r,g,b;
     int x,y;
-    int i;
     cout << "Iniciou Expande Pinos....";
 
     for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
@@ -295,10 +283,14 @@ void ColorePinos(){
     {
         for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
         {
+            unsigned char r,g,b;
             i = Image3->GetPointIntensity(x,y);
 
             if (i < 100){
                 NovaImagem->DrawPixel(x, y, 0, 0, 255);
+            } else {
+                NovaImagem->ReadPixel(x,y,r,g,b);
+                NovaImagem->DrawPixel(x, y, r, g, b);
             }
         }
     }
@@ -309,7 +301,6 @@ void ColorePinos(){
 //      Função que pinta a dentina de verde
 // **********************************************************************
 void verDentina(int tam = 3){
-    unsigned char r,g,b;
     int x,y;
     cout << "Iniciou VerDentina....";
 
@@ -349,7 +340,6 @@ void verDentina(int tam = 3){
 void LimpaFundo(){
     unsigned char r,g,b;
     int x,y;
-    int i;
     cout << "Iniciou LimpaFundo....";
 
     for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
@@ -357,7 +347,6 @@ void LimpaFundo(){
         for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
         {
             NovaImagem->ReadPixel(x,y,r,g,b);
-            i = Image->GetPointIntensity(x,y);
 
             int m = MediaDosVizinhos(x,y);
 
@@ -379,7 +368,6 @@ void LimpaFundo(){
 void AchaDentina(){
     unsigned char r,g,b;
     int x,y;
-    int i;
     cout << "Iniciou AchaDentina....";
 
     for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
@@ -387,7 +375,6 @@ void AchaDentina(){
         for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
         {
             NovaImagem->ReadPixel(x,y,r,g,b);
-            i = Image->GetPointIntensity(x,y);
 
             int m = MediaDosVizinhos(x,y);
 
@@ -423,7 +410,6 @@ int Magnitude(int x, int y, int masc){
 void limpaErrosDentina(){
     unsigned char r,g,b;
     int x,y;
-    int i;
     cout << "Iniciou limpaErrosDentina....";
 
     for(x=KERNEL_SIZE;x<Image->SizeX()-KERNEL_SIZE;x++)
@@ -431,7 +417,6 @@ void limpaErrosDentina(){
         for(y=KERNEL_SIZE;y<Image->SizeY()-KERNEL_SIZE;y++)
         {
             Image3->ReadPixel(x,y,r,g,b);
-            i = Image3->GetPointIntensity(x,y);
 
             if (Magnitude(x,y,-2) < -6776){
                 Image3->DrawPixel(x,y, 0,0,0);

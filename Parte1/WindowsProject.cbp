@@ -52,6 +52,7 @@
 		<Unit filename="SOIL/stb_image_aug.cpp" />
 		<Unit filename="TrabalhoCG.cpp" />
 		<Unit filename="methods.h" />
+		<Unit filename="report.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

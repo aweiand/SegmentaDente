@@ -386,15 +386,30 @@
 
 1215465208 c:\users\gutow\documents\cg\segmentadente\parte1\soil\stbi_dds_aug_c.h
 
-1403389741 source:c:\users\gutow\documents\cg\segmentadente\parte1\trabalhocg.cpp
+1403404929 source:c:\users\gutow\documents\cg\segmentadente\parte1\trabalhocg.cpp
 	<iostream>
+	<string>
 	<stdlib.h>
+	<stdio.h>
 	<windows.h>
 	"gl\glut.h"
+	"tinydir.h"
 	<GL/glut.h>
 	"SOIL/SOIL.h"
 	"ImageClass.h"
 	"methods.h"
+	"report.h"
 
-1403389750 c:\users\gutow\documents\cg\segmentadente\parte1\methods.h
+1403401256 c:\users\gutow\documents\cg\segmentadente\parte1\methods.h
+
+1403393454 c:\users\gutow\documents\cg\segmentadente\parte1\tinydir.h
+	<errno.h>
+	<stdlib.h>
+	<string.h>
+	<windows.h>
+	<dirent.h>
+	<libgen.h>
+	<sys/stat.h>
+
+1403406742 c:\users\gutow\documents\cg\segmentadente\parte1\report.h
 
