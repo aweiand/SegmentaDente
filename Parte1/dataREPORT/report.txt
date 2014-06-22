@@ -1,54 +1,90 @@
 Imagem Tratada: Dentes 01 02 03_rec0647.png
 Imagem Tratada | Imagem Ground
 Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)
-R: 2% (98933) | 0% (19667)
-G: 13% (532300) | 12% (515854)
-B: 7% (305389) | 6% (240428)
-Preto: 75% (3021980) | 80% (3223274)
+R: 1% (48471) | 0% (19667)
+G: 12% (501907) | 12% (515854)
+B: 7% (301964) | 6% (240428)
+Preto: 77% (3108257) | 80% (3223274)
 
 -------------------
 Imagem Tratada: Dentes 01 02 03_rec0648.png
 Imagem Tratada | Imagem Ground
 Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)
-R: 2% (102634) | 0% (25090)
-G: 13% (533767) | 12% (514388)
-B: 7% (305266) | 6% (241178)
-Preto: 75% (3017098) | 80% (3218289)
+R: 1% (43137) | 0% (25090)
+G: 12% (503359) | 12% (514388)
+B: 7% (302120) | 6% (241178)
+Preto: 77% (3112117) | 80% (3218289)
 
 -------------------
 Imagem Tratada: Dentes 01 02 03_rec0649.png
 Imagem Tratada | Imagem Ground
 Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)
-R: 2% (102928) | 0% (25963)
-G: 13% (534358) | 13% (531133)
-B: 7% (305102) | 6% (241134)
-Preto: 75% (3016390) | 80% (3201770)
+R: 1% (46255) | 0% (25963)
+G: 12% (504050) | 13% (531133)
+B: 7% (301696) | 6% (241134)
+Preto: 77% (3108765) | 80% (3201770)
 
 -------------------
 Imagem Tratada: Dentes 01 02 03_rec0681.png
 Imagem Tratada | Imagem Ground
 Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)
-R: 2% (89469) | 0% (27371)
-G: 14% (560955) | 13% (547722)
-B: 7% (302470) | 5% (237410)
-Preto: 75% (3005871) | 79% (3187497)
+R: 1% (42606) | 0% (27371)
+G: 13% (529684) | 13% (547722)
+B: 7% (299193) | 5% (237410)
+Preto: 77% (3089256) | 79% (3187497)
 
 -------------------
 Imagem Tratada: Dentes 01 02 03_rec0682.png
 Imagem Tratada | Imagem Ground
 Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)
-R: 2% (88538) | 0% (23819)
-G: 14% (561374) | 13% (548482)
-B: 7% (303012) | 6% (248333)
-Preto: 75% (3005939) | 79% (3179366)
+R: 0% (38559) | 0% (23819)
+G: 13% (528915) | 13% (548482)
+B: 7% (299870) | 6% (248333)
+Preto: 77% (3093576) | 79% (3179366)
 
 -------------------
 Imagem Tratada: Dentes 01 02 03_rec0716.png
 Imagem Tratada | Imagem Ground
 Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)
-R: 1% (76706) | 0% (31475)
-G: 14% (584318) | 13% (522428)
-B: 7% (301264) | 5% (219329)
-Preto: 74% (2996378) | 36% (1479026)
+R: 1% (49236) | 0% (31475)
+G: 13% (551709) | 13% (522428)
+B: 7% (298403) | 5% (219329)
+Preto: 76% (3061351) | 36% (1479026)
+
+-------------------
+Imagem Tratada: Dentes 01 02 03_rec0761.png
+Imagem Tratada | Imagem Ground
+Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)
+R: 1% (50119) | 0% (37279)
+G: 14% (581290) | 14% (593134)
+B: 7% (294061) | 5% (226696)
+Preto: 75% (3035417) | 78% (3125413)
+
+-------------------
+Imagem Tratada: Dentes 01 02 03_rec0762.png
+Imagem Tratada | Imagem Ground
+Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)
+R: 1% (55953) | 0% (34271)
+G: 14% (580547) | 14% (598215)
+B: 7% (294084) | 5% (216274)
+Preto: 75% (3030470) | 78% (3130755)
+
+-------------------
+Imagem Tratada: Dentes 01 02 03_rec0763.png
+Imagem Tratada | Imagem Ground
+Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)
+R: 1% (56695) | 0% (34130)
+G: 14% (580498) | 14% (595840)
+B: 7% (293866) | 5% (213614)
+Preto: 75% (3029826) | 78% (3138874)
+
+-------------------
+Imagem Tratada: Dentes 01 02 03_rec0764.png
+Imagem Tratada | Imagem Ground
+Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)
+R: 1% (54126) | 0% (36849)
+G: 14% (580833) | 14% (598516)
+B: 7% (293945) | 5% (220318)
+Preto: 75% (3032022) | 78% (3125454)
 
 -------------------

@@ -17,15 +17,27 @@ void openFile(){
     cout << "Arquivo report.txt Criado/Aberto..." << endl;
 }
 
+// **********************************************************************
+//      Função que imprime um char no arquivo do relatorio
+// **********************************************************************
 void writeReport(char data[1024]){
     fprintf(fp, data);
     fprintf(fp, "\n");
 }
 
+// **********************************************************************
+//      Função que fecha o arquivo do relatorio
+// **********************************************************************
 void endFile(){
     fclose(fp);
 }
 
+// **********************************************************************
+//      Função que cria o relatorio de acordo com a imagem
+//      original e o ground truth, devidamente localizados
+//      nas pastas do sistema, preenche o arquivo do relatorio
+//      com os dados necessarios.
+// **********************************************************************
 void report(char groundfile[1024], char filename[1024]){
     openFile();
     unsigned char r,g,b;

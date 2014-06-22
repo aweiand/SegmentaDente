@@ -432,13 +432,18 @@ void limpaErrosDentina(){
             }
         }
     }
+
+    Image3->CopyTo(NovaImagem);
     cout << "Concluiu limpaErrosDentina.\n";
 }
 
+// **********************************************************************
+//      Função que acha os canais e os pinta de vermelho
+// **********************************************************************
 void achaCanal(){
     unsigned char r,g,b;
     int x,y;
-    int borders = 200;
+    int borders = 100;
     cout << "Iniciou Acha Canal...." << endl;
 
     for(x=borders;x<NovaImagem->SizeX()-borders;x++){
@@ -456,7 +461,7 @@ void achaCanal(){
                     }
 
                     NovaImagem->ReadPixel(x,y++,r,g,b);
-                    if (conta > 15 && conta < 200 && g == 255){
+                    if (conta > 18 && conta < 190 && g == 255){
                         for(int i=y-conta; i<=y; i++){
                             Image3->DrawPixel(x,i, 255,0,0);
                         }
@@ -470,5 +475,30 @@ void achaCanal(){
 
     Image3->CopyTo(NovaImagem);
 
+    for(x=borders;x<NovaImagem->SizeX()-borders;x++){
+        for(y=borders;y<NovaImagem->SizeY()-borders;y++){
+            NovaImagem->ReadPixel(x,y,r,g,b);
+
+            if (g == 0 && b == 0 && r == 255){
+                int conta = 0;
+                while(g == 0 && b == 0 && r == 255){
+                    conta++;
+                    x++;
+                    NovaImagem->ReadPixel(x,y,r,g,b);
+                }
+
+                if (conta <= 3 || conta > 80){
+                    for(int i=x-conta; i<=x; i++){
+                        Image3->DrawPixel(i,y, 0,0,0);
+                    }
+                }
+                x -= conta;
+            } else {
+                Image3->DrawPixel(x,y, r,g,b);
+            }
+        }
+    }
+
+    Image3->CopyTo(NovaImagem);
     cout << "Concluiu Acha Canal.\n";
 }

@@ -93,6 +93,8 @@ void algoritmoTratamento(){
     ExpandePinos(); // q
     ExpandePinos(); // q
     AchaDentina(); // j
+    limpaErrosDentina(); // l
+    limpaErrosDentina(); // l
     achaCanal(); // b
 }
 
