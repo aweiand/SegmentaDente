@@ -81,14 +81,11 @@ void report(char groundfile[1024], char filename[1024]){
 
     int tot = Image3->SizeY()*Image3->SizeX();
 
-    fprintf(fp, "Imagem Tratada: %s\n", filename);
-    fprintf(fp, "Imagem Tratada | Imagem Ground\n");
-    fprintf(fp, "Cor: Porcentagem inteira (total de pixels) | Porcentagem inteira (total de pixels)\n");
-    fprintf(fp, "R: %d%% (%d) | %d%% (%d)\n", ((rcont * 100) / tot), rcont, ((grcont * 100) / tot), grcont);
-    fprintf(fp, "G: %d%% (%d) | %d%% (%d)\n", ((gcont * 100) / tot), gcont, ((ggcont * 100) / tot), ggcont);
-    fprintf(fp, "B: %d%% (%d) | %d%% (%d)\n", ((bcont * 100) / tot), bcont, ((gbcont * 100) / tot), gbcont);
-    fprintf(fp, "Preto: %d%% (%d) | %d%% (%d)\n\n", ((pcont * 100) / tot), pcont, ((gpcont * 100) / tot), gpcont);
-    fprintf(fp, "-------------------\n");
+    fprintf(fp, "%s;", filename);
+    fprintf(fp, "%d%% (%d);%d%% (%d);", ((rcont * 100) / tot), rcont, ((grcont * 100) / tot), grcont);
+    fprintf(fp, "%d%% (%d);%d%% (%d);", ((gcont * 100) / tot), gcont, ((ggcont * 100) / tot), ggcont);
+    fprintf(fp, "%d%% (%d);%d%% (%d);", ((bcont * 100) / tot), bcont, ((gbcont * 100) / tot), gbcont);
+    fprintf(fp, "%d%% (%d);%d%% (%d)\n", ((pcont * 100) / tot), pcont, ((gpcont * 100) / tot), gpcont);
 
     cout << "Finalizou Report...." << endl;
     endFile();
