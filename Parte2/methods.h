@@ -8,61 +8,35 @@
 //
 //	Augusto Weiand <guto.weiand@gmail.com>
 // **********************************************************************
-
-// **********************************************************************
-//      Função
-// **********************************************************************
-void _createMCO(int dx, int dy, ImageClass *from){
-    int cont = 0;
-    int x,y;
-    cout << "Iniciou Create MCO... ";
-
-    for(x=0;x<from->SizeX();x++){
-        for(y=0;y<from->SizeY();y++){
-            int p1 = from->GetPointIntensity(x,y);
-            if (x+dx > 0 && y-dy > 0 && x+dx < from->SizeX() && y-dy < from->SizeY()){
-                int p2 = from->GetPointIntensity((x + dx), (y - dy));
-
-                mco[p1][p2]++;
-                mco[p2][p1]++;
-                cont++;
-            }
-        }
-    }
-
-    /* Esta etapa acaba com a matriz... :(
-    if (cont > 0){
-        for(int i=0; i<=255; i++){
-            for(int j=0; j<=255; j++){
-                if (mco[i][j] > 0 ){
-                    mco[i][j] /= cont;
-                }
-            }
-        }
-    }
-    */
-    /* gerador de relatorio, caso necessario */
-    fp = fopen(".\\dataREPORT\\mco.txt", "w+");
-    for(int i=0; i<=255; i++){
-        for(int j=0; j<=255; j++){
-            //cout << mco[i][j] << " ";
-            fprintf(fp, "%d ", mco[i][j]);
-        }
-        //cout << endl;
-        fprintf(fp, "\n");
-    }
-    fclose(fp);
-
-    cout << "Concluiu Create MCO.\n";
+void printStatus(int i){
+    if (i == 0 || i == 500 || i == 1000 || i == 1500 || i == 2000)
+        cout << "\n------ I: " << i << " ------\n";
 }
 
-int getEnergy(){
+void normalizaMCO(float mco2[TAM][TAM]){
+    float normal = 0;
+
+    for(int i=0;i<TAM;i++)
+        for(int j=0;j<TAM;j++){
+            if (mco2[i][j] > 0 )
+                normal += mco2[i][j];
+        }
+
+    for(int i=0; i<=TAM; i++)
+        for(int j=0; j<=TAM; j++){
+            if (mco2[i][j] > 0 ){
+                mco2[i][j] = mco2[i][j] / normal;
+            }
+        }
+}
+
+float getEnergy(float mco2[TAM][TAM]){
     int y = 0;
 
-    for(int i=0; i<=255; i++){
-        for(int j=0; j<=255; j++){
-            if (mco[i][j] > 0 ){
-                y += mco[i][j] * mco[i][j];
+    for(int i=0; i<=TAM; i++){
+        for(int j=0; j<=TAM; j++){
+            if (mco2[i][j] > 0 ){
+                y += mco2[i][j] * mco2[i][j];
             }
         }
     }
@@ -70,13 +44,13 @@ int getEnergy(){
     return y;
 }
 
-int getEntropy(){
+float getEntropy(float mco2[TAM][TAM]){
     float y = 0;
 
-    for(int i=0; i<=255; i++){
-        for(int j=0; j<=255; j++){
-            if (mco[i][j] > 0 ){
-                y += mco[i][j] * log2(mco[i][j]);
+    for(int i=0; i<=TAM; i++){
+        for(int j=0; j<=TAM; j++){
+            if (mco2[i][j] > 0 ){
+                y += mco2[i][j] * log2(mco2[i][j]);
             }
         }
     }
@@ -84,13 +58,13 @@ int getEntropy(){
     return -y;
 }
 
-int getContrast(){
+float getContrast(float mco2[TAM][TAM]){
     int y = 0;
 
-    for(int i=0; i<=255; i++){
-        for(int j=0; j<=255; j++){
-            if (mco[i][j] > 0 ){
-                y += (i - j) * (i - j) * mco[i][j];
+    for(int i=0; i<=TAM; i++){
+        for(int j=0; j<=TAM; j++){
+            if (mco2[i][j] > 0 ){
+                y += (i - j) * (i - j) * mco2[i][j];
             }
         }
     }
@@ -98,18 +72,77 @@ int getContrast(){
     return y;
 }
 
-int getHomogen(){
+float getHomogen(float mco2[TAM][TAM]){
     int y = 0;
 
-    for(int i=0; i<=255; i++){
-        for(int j=0; j<=255; j++){
-            if (mco[i][j] > 0 ){
-                y += mco[i][j] / (1 + (i - j) * (i - j));
+    for(int i=0; i<=TAM; i++){
+        for(int j=0; j<=TAM; j++){
+            if (mco2[i][j] > 0 ){
+                y += mco2[i][j] / (1 + (i - j) * (i - j));
             }
         }
     }
 
     return y;
+}
+
+int getSegundoMomentoAngular(int mco2[TAM][TAM]){
+    float segundoMomentoAngular = 0;
+    for (int i = 0; i < TAM; i++)
+        for (int j = 0; j < TAM; j++)
+            if(mco2[i][j] > 0) segundoMomentoAngular += pow(mco2[j][i],2);
+
+    return segundoMomentoAngular;
+}
+
+// **********************************************************************
+//      Função para criar a matriz com a orientação e
+//       direção fornecidas em dx e dy
+// **********************************************************************
+void _createMCO(int dx, int dy, int x, int y, int tamanho, ImageClass *from, float mco2[TAM][TAM]){
+    //cout << "Iniciou Create MCO... ";
+
+    // For para percorrer toda a imagem no X e Y
+    for(int i=0;i<tamanho;i++){
+        for(int j=0;j<tamanho;j++){
+            int coordX = x+i;
+            int coordY = y+j;
+
+            // Verifico se não está fora da janela
+            if ((coordX+dx) > 0 && (coordX+dx < (from->SizeX()-tamanho)) &&
+                (coordY-dy) > 0 && (coordY-dy < (from->SizeY()-tamanho))){
+
+                int p1 = from->GetPointIntensity(coordX, coordY);
+                int p2 = from->GetPointIntensity((coordX + dx), (coordY - dy));
+
+                if (p1 <= TAM && p2 <= TAM){
+                    mco2[(int)p1][(int)p2]++;
+                    mco2[(int)p2][(int)p1]++;
+                }
+            }
+        }
+    }
+
+    /* gerador de relatorio, caso necessario
+    fp = fopen(".\\dataREPORT\\mco.txt", "w+");
+    for(int i=0; i<=TAM; i++){
+        for(int j=0; j<=TAM; j++){
+            //cout << mco[i][j] << " ";
+            fprintf(fp, "%d ", mco2[i][j]);
+        }
+        //cout << endl;
+        fprintf(fp, "\n");
+    }
+
+    fprintf(fp, "\n\n -------------\n");
+    fprintf(fp, "Energia: %d\n", getEnergy(mco2));
+    fprintf(fp, "Entropy: %d\n", getEntropy(mco2));
+    fprintf(fp, "Contrast: %d\n", getContrast(mco2));
+    fprintf(fp, "Homogen: %d\n", getHomogen(mco2));
+    fclose(fp);
+    */
+
+    //cout << "Concluiu Create MCO.\n";
 }
 
 // **********************************************************************
@@ -126,7 +159,7 @@ void linearHisto(ImageClass *from, ImageClass *to){
             i = from->GetPointIntensity(x,y);
 
             if (i > 55){
-                to->DrawPixel(x, y, 255, 255, 255);
+                to->DrawPixel(x, y, TAM, TAM, TAM);
             } else {
                 to->DrawPixel(x, y, i, i, i);
             }
@@ -221,7 +254,7 @@ void PassaBaixa(ImageClass *from, ImageClass *to){
     cout << "Concluiu Passa Baixa.\n";
 }
 
-// **********************************************************************
+// *******************************************_createMCO(1, 1, 580, 660, 100, from, mco);***************************
 //      Função que limiariza o histograma da imagem de acordo
 //      de acordo com os intervalor especificados
 // **********************************************************************
@@ -240,7 +273,7 @@ void Interval(ImageClass *from, ImageClass *to){
                 to->DrawPixel(x, y, 75, 75, 75);
             else if (i >= 100 && i < 200)
                 to->DrawPixel(x, y, 125, 125, 125);
-            else if (i >= 200 && i <= 255)
+            else if (i > 200)
                 to->DrawPixel(x, y, 200, 200, 200);
         }
     }
@@ -261,7 +294,7 @@ void ConvertBlackAndWhite(ImageClass *from, ImageClass *to, int limiar = 100){
             i = from->GetPointIntensity(x,y);
 
             if (i > 0 && i < limiar){
-                NovaImagem->DrawPixel(x, y, 255,255,255);
+                NovaImagem->DrawPixel(x, y, TAM,TAM,TAM);
             } else
                 NovaImagem->DrawPixel(x, y, 0,0,0);
         }
@@ -314,3 +347,71 @@ void texturaPinos(ImageClass *from, ImageClass *to, int kernel_2 = 7){
 
     cout << "Concluiu TexturaPinos.\n";
 }
+
+void texturaDentina(ImageClass *from, ImageClass *to){
+    unsigned char r,g,b;
+    int x = 0,y = 0;
+    float limiar = 0.8;
+    float limiar2 = 1.2;
+    cout << "Iniciou TexturaDentina....";
+
+    _createMCO(10, 0, 380, 470, 15, from, mco);
+    // normalizaMCO(mco);
+
+    float infos[] = { getEnergy(mco), -getEntropy(mco), getContrast(mco), getHomogen(mco) };
+    cout << endl << "MCO Criada...\n";
+    cout << "Eneriga: " << infos[0] << endl;
+    cout << "Entropia: " << infos[1] << endl;
+    cout << "Constraste: " << infos[2] << endl;
+    cout << "Homog: " << infos[3] << endl;
+
+    for(x=0;x<from->SizeX()/2-1;x+=counter){
+        printStatus(x);
+        // cout << endl << "--- X: " << x << endl;
+        for(y=0;y<from->SizeY()/4-1;y+=counter){
+            float mco2[TAM][TAM];
+            _createMCO(10, 0, x, y, 15, from, mco2);
+            // normalizaMCO(mco2);
+            // cout << "Y: " << y << endl;
+
+            int infos2[] = { getEnergy(mco2), -getEntropy(mco2), getContrast(mco2), getHomogen(mco2) };
+
+            if (
+                (infos[0] >= (infos2[0] * limiar) && infos[0] <= (infos2[0] * limiar2))
+                //(infos[1] >= (infos2[1] * limiar) && infos[1] <= (infos2[1] * limiar2))
+                //(infos[2] >= (infos2[2] * limiar) && infos2[2] <= (infos2[2] * limiar2))
+                //(infos[3] >= (infos2[3] * limiar) && infos2[3] <= (infos2[3] * limiar2))
+                ){
+                for(int x2=x;x2<x+counter;x2++){
+                    if (x2 <= to->SizeX()){
+                        for(int y2=y;y2<y+counter;y2++){
+                            if (y2 <= to->SizeY())
+                                to->DrawPixel(x2, y2, 255, 0, 0);
+                        }
+                    }
+                }
+            } else {
+                // from->ReadPixel(x,y,r,g,b);
+                // to->DrawPixel(x, y, r,g,b);
+                for(int x2=x;x2<x+counter;x2++){
+                    if (x2 <= to->SizeX() && x2 <= from->SizeX()){
+                        for(int y2=y;y2<y+counter;y2++){
+                            if (y2 <= to->SizeY() && y2 <= from->SizeY()){
+                                //unsigned char r,g,b;
+                                //from->ReadPixel(x2,y2,r,g,b);
+                                to->DrawPixel(x2, y2, 0,0,0);
+                            }
+                        }
+                    }
+                }
+            }
+            free(mco2);
+            free(infos2);
+        }
+    }
+
+    cout << "Concluiu TexturaDentina.\n";
+}
+
+
+

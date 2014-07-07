@@ -36,10 +36,13 @@ ImageClass *Image, *NovaImagem, *Image3;
 #define LARGURA_JAN 600
 #define ALTURA_JAN 600
 
+#define TAM 255
+#define counter 5
+
 int kernel = 5;
 int limiar = 100;
 
-int mco[255][255];
+float mco[TAM][TAM];
 
 FILE *fp;
 tinydir_dir dir;
@@ -68,6 +71,7 @@ void printaMenu(){
     cout << endl;
     cout << "'f' - Aplica TexturaFundo" << endl;
     cout << "'p' - Aplica TexturaPinos" << endl;
+    cout << "'d' - Aplica TexturaDentina" << endl;
     cout << endl;
     cout << "'1' - Menu" << endl;
     cout << " - - - - - " << endl;
@@ -132,9 +136,10 @@ void init(void){
     //trataImagens();
 
     Image = new ImageClass();
-    // Image->Load("default.png");
-     Image->Load("desc_dentina.png");
-    // Image->Load("desc_pino.png");
+    //Image->Load("default.png");
+    Image->Load("default2.png");
+    // Image->Load("desc_dentina_15.png");
+    // Image->Load("desc_pino_15.png");
     // Image->Load("desc_preto.png");
 
     NovaImagem  = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
@@ -218,8 +223,13 @@ void keyboard ( unsigned char key, int x, int y ){
         case 'p':
             texturaPinos(Image, NovaImagem, kernel);
         break;
+        case 'd':
+            texturaDentina(Image, NovaImagem);
+        break;
         case 'o':
-            _createMCO(2, 0, Image);
+            cout << "Create MCO... ";
+            _createMCO(2, 0, 0, 0, 15, Image, mco);
+            cout << "Finish MCO... \n";
         break;
 
         case 27:
