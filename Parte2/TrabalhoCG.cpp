@@ -31,18 +31,24 @@ using namespace std;
 
 // **********************************************************************
 // Variáveis das imagens e outras globais utilizadas no sistema
-ImageClass *Image, *NovaImagem, *Image3;
+ImageClass *Image, *NovaImagem, *tmp;
 
 #define LARGURA_JAN 600
 #define ALTURA_JAN 600
 
-#define TAM 255
+#define TAM 150
 #define counter 5
 
 int kernel = 5;
 int limiar = 100;
 
-float mco[TAM][TAM];
+float dentina[TAM][TAM];
+float canal[TAM][TAM];
+float temporariMCO[TAM][TAM];
+
+float _infos[4] = {0,0,0,0};
+float _infosCanal[4] = {0,0,0,0};
+float temporariosdata[4] = {0,0,0,0};
 
 FILE *fp;
 tinydir_dir dir;
@@ -67,10 +73,7 @@ void printaMenu(){
     cout << "'m' - Mediana" << endl;
     cout << "'h' - Linearizacao Histograma" << endl;
     cout << "'b' - Aplica PassaBaixa" << endl;
-    cout << "'o' - Cria Matriz de co-ocorrencia" << endl;
     cout << endl;
-    cout << "'f' - Aplica TexturaFundo" << endl;
-    cout << "'p' - Aplica TexturaPinos" << endl;
     cout << "'d' - Aplica TexturaDentina" << endl;
     cout << endl;
     cout << "'1' - Menu" << endl;
@@ -102,7 +105,6 @@ void trataImagens(){
         if (strlen(filein.name) > 4){
             Image->Delete();
             NovaImagem->Delete();
-            Image3->Delete();
 
             Image = new ImageClass();
             int r = Image->Load(strcat(fromfile, filein.name));
@@ -136,11 +138,10 @@ void init(void){
     //trataImagens();
 
     Image = new ImageClass();
-    //Image->Load("default.png");
-    Image->Load("default2.png");
-    // Image->Load("desc_dentina_15.png");
-    // Image->Load("desc_pino_15.png");
-    // Image->Load("desc_preto.png");
+    Image->Load("2.png");
+
+    tmp = new ImageClass();
+    tmp->Load("1.png");
 
     NovaImagem  = new ImageClass(Image->SizeX(), Image->SizeY(), Image->Channels());
 
@@ -199,42 +200,17 @@ void display( void ){
 // **********************************************************************
 void keyboard ( unsigned char key, int x, int y ){
     switch ( key ){
-        case 'w':
-            ConvertBlackAndWhite(Image, NovaImagem, limiar);
-        break;
-        case 'i':
-            Interval(Image, NovaImagem);
-        break;
-        case 'b':
-            PassaBaixa(Image, NovaImagem);
-        break;
-        case 'm':
-            AplicaMediana(Image, NovaImagem, kernel);
-        break;
-        case 'h':
-            linearHisto(Image, NovaImagem);
-        break;
         case '1':
             printaMenu();
         break;
-        case 'f':
-            texturaFundo(Image, NovaImagem, kernel);
-        break;
-        case 'p':
-            texturaPinos(Image, NovaImagem, kernel);
-        break;
         case 'd':
             texturaDentina(Image, NovaImagem);
-        break;
-        case 'o':
-            cout << "Create MCO... ";
-            _createMCO(2, 0, 0, 0, 15, Image, mco);
-            cout << "Finish MCO... \n";
         break;
 
         case 27:
             NovaImagem->Delete();
             Image->Delete();
+            tmp->Delete();
             exit(0);
         break;
         default:
